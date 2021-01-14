@@ -21,25 +21,16 @@
         </div>
     </div>
 
-    <v-app id="inspire">
-    <v-container fluid>
-      <v-layout row wrap justify-center class="mt-4">
-        <v-flex xs12 sm10 text-xs-center>
-          <v-text-field
-            label="The text"
-            v-model="text"
-            textarea
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12 sm8 md4 text-xs-center>
-          <Speech2Text v-model="text" @speechend="speechEnd"></Speech2Text>
-        </v-flex>
-        <v-flex xs12 text-xs-center class="mt-4">
+          <Speech2Text @speechend="speechEnd"/>
           {{sentences}}
-        </v-flex>
-      </v-layout>
-    </v-container>
-  </v-app>
+    
+    <br/>
+    <br/>
+    <br/>
+
+    <div v-for="(value, index) in responseData" :key="index">
+      <li>{{ value }}</li>
+    </div>
 
 
 </section>
@@ -64,38 +55,41 @@ export default {
       feedbackTextArea: '',
       selectedImage: null,
       text: '',
-      sentences: null
+      newArea: '',
+      sentences: null,
+      responseData: []
       
     }
   },
 
   methods: {
 
-    speechEnd ({sentences, text}) {
+    speechEnd({sentences, text}) {
       console.log('text', text)
       console.log('sentences', sentences)
       this.sentences = sentences
     },
 
-      submitFeedbackForm() {
-        this.feedbackTextArea = ''
-        console.log("Form submitted")
-        console.log(this.selectedImage.type)
-        
-        AWS.config.update({
-        region: "ap-south-1",
-        credentials: new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: "ap-south-1:946075dc-1656-44d1-92cd-4c8aa6a2ec08"
-        }),
+    submitFeedbackForm() {
+      
+      console.log(this.feedbackTextArea)
 
-      });
+      this.responseData.push({"Comment":this.feedbackTextArea})
+      this.feedbackTextArea = ''
+      console.log("Form submitted")
 
-        let s3 = new AWS.S3();
+      AWS.config.update({
+      region: "ap-south-1",
+      credentials: new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: "ap-south-1:946075dc-1656-44d1-92cd-4c8aa6a2ec08"
+      }),});
 
-        // let decodedImage = Buffer.from(this.selectedImage, 'base64');
-        
-       
+      let s3 = new AWS.S3();
+      
+      if (this.selectedImage){
+
         var filePath = this.selectedImage.name;
+      
         var params = {
             "Body": this.selectedImage,
             "Bucket": "feedbacktoolbucket",
@@ -103,17 +97,23 @@ export default {
             "ACL": "public-read", /* This makes the image public, but only works if your S3 bucket allows public access */
             "ContentType": this.selectedImage.type /* This is important to handle jpg vs png etc */
         };
-        s3.upload(params, function (err, data) {
-            console.log(err, data);
-        });
 
-        
+        s3.upload(params, (err, data) => {
+            if (err) {
+              console.log("Error", err);
+            } if (data) {
+              console.log("Upload Success", data.Location);
+              this.responseData.push({"ImageLocation": data.Location})
+            }
+          });
+      }
 
       },
       onImageSelected(e) {
         this.selectedImage = e.target.files[0]
         console.log(this.selectedImage)
       }
+
 
   }
 
