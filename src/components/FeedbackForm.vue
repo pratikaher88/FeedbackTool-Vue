@@ -42,6 +42,7 @@
 
 import AWS from "aws-sdk";
 import Speech2Text from "./STT"
+import Bowser from "bowser";
 
 export default {
   name: 'FeedbackForm',
@@ -74,7 +75,14 @@ export default {
       
       console.log(this.feedbackTextArea)
 
-      this.responseData.push({"Comment":this.feedbackTextArea})
+      this.responseData.push({"Comment": this.feedbackTextArea})
+      this.responseData.push({"SiteName": window.location.href})
+
+      const browser = Bowser.getParser(window.navigator.userAgent);
+      console.log(browser.getBrowser());
+
+      this.responseData.push({"BrowserName": browser.getBrowser()})
+
       this.feedbackTextArea = ''
       console.log("Form submitted")
 
