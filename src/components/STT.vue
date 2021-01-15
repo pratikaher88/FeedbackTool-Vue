@@ -111,10 +111,10 @@ export default {
         }
         this.runtimeTranscription = ''
         recognition.stop()
-        if (this.toggle) {
-          // keep it going.
-          recognition.start()
-        }
+        // if (this.toggle) {
+        //   // keep it going.
+        //   recognition.start()
+        // }
       })
       recognition.start()
     },
