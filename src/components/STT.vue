@@ -1,4 +1,5 @@
 <template>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 <v-card>
     <v-card-text>
@@ -24,7 +25,15 @@
             :color="!toggle ? 'grey' : (speaking ? 'red' : 'red darken-3')"
             :class="{'animated infinite pulse': toggle}"
           >
-            <v-icon>{{toggle ? 'mic_off' : 'mic'}}</v-icon>
+            <!-- <v-icon>{{toggle ? 'mic_off' : 'mic'}}</v-icon> -->
+
+            <div v-if="!toggle">
+              <i class="fa fa-microphone fa-2x"/>
+            </div>
+            <div v-else>
+              <i class="fa fa-microphone-slash fa-2x"/>
+            </div>
+
           </v-btn>
         </v-flex>
       </v-layout>
@@ -92,6 +101,7 @@ export default {
       recognition.addEventListener('result', event => {
         const text = Array.from(event.results).map(result => result[0]).map(result => result.transcript).join('')
         this.runtimeTranscription = text
+        this.$emit('sentTexts', this.runtimeTranscription)
       })
 
       recognition.addEventListener('end', () => {

@@ -13,6 +13,9 @@
                     <label class="label">Comments: </label>
                     <div class="control">
                         <textarea id="textAreaBox" rows="6" cols="60" v-model="feedbackTextArea"/>
+                        <Speech2Text @speechend="speechEnd" />
+                        <!-- <Speech2Text @sentTexts="sentTexts" @speechend="speechEnd" /> -->
+                              <!-- {{sentences}} -->
                     </div>
                     <input type="file" @change="onImageSelected">
                     <button class="button" @submit.prevent="submitFeedbackForm">SUBMIT</button>
@@ -21,8 +24,7 @@
         </div>
     </div>
 
-          <Speech2Text @speechend="speechEnd"/>
-          {{sentences}}
+    <!-- <input type="text" @sentTexts="sentTexts($event)"> -->
     
     <br/>
     <br/>
@@ -43,6 +45,8 @@
 import AWS from "aws-sdk";
 import Speech2Text from "./STT"
 import Bowser from "bowser";
+
+const browser = Bowser.getParser(window.navigator.userAgent);
 
 export default {
   name: 'FeedbackForm',
@@ -65,10 +69,15 @@ export default {
 
   methods: {
 
+    // sentTexts(text){
+    //   console.log(text)
+    // },
+
     speechEnd({sentences, text}) {
       console.log('text', text)
       console.log('sentences', sentences)
       this.sentences = sentences
+      this.feedbackTextArea = text
     },
 
     submitFeedbackForm() {
@@ -78,7 +87,6 @@ export default {
       this.responseData.push({"Comment": this.feedbackTextArea})
       this.responseData.push({"SiteName": window.location.href})
 
-      const browser = Bowser.getParser(window.navigator.userAgent);
       console.log(browser.getBrowser());
 
       this.responseData.push({"BrowserName": browser.getBrowser()})
