@@ -8,9 +8,9 @@
 
     <div class="columns">
         <div class="column">
-            <form @submit.prevent="submitFeedbackForm()">
-                <div class="field">
-                    <label class="label">Comments: </label>
+            <form @submit.prevent="submitFeedbackForm()" >
+                <div class="field" >
+                    <label class="label" > <strong> Comments: </strong> <span :class="{ '--exceeded': isDisabled }"> ({{ commentCharacterCount }}/500) </span></label>
                     <div class="control">
                         <textarea id="textAreaBox" rows="6" cols="60" v-model="feedbackTextArea"/>
                         <Speech2Text @speechend="speechEnd" />
@@ -18,7 +18,7 @@
                               <!-- {{sentences}} -->
                     </div>
                     <input type="file" @change="onImageSelected">
-                    <button class="button" @submit.prevent="submitFeedbackForm">SUBMIT</button>
+                    <button class="submitbutton" @submit.prevent="submitFeedbackForm" :disabled='isDisabled'>SUBMIT</button>
                 </div>
             </form>
         </div>
@@ -65,6 +65,24 @@ export default {
       responseData: []
       
     }
+  },
+
+  computed: {
+
+    commentCharacterCount() {
+
+      if (this.isDisabled){
+        return 500 - this.feedbackTextArea.length
+      }
+      else{
+        return this.feedbackTextArea.length;
+      }
+
+    },
+    isDisabled(){
+      return this.feedbackTextArea.length>500;
+    }
+
   },
 
   methods: {
@@ -141,7 +159,7 @@ export default {
 
 <style>
 
-.button {
+.submitbutton {
   background-color: purple; /* Green */
   border: none;
   color: white;
@@ -151,6 +169,10 @@ export default {
   text-decoration: none;
   display: inline-block;
   font-size: 12px;
+}
+
+.submitbutton:disabled {
+  background: #dddddd;
 }
 
 .upload {
@@ -163,6 +185,11 @@ export default {
   text-decoration: none;
   display: inline-block;
   font-size: 12px;
+}
+
+.--exceeded {
+  color: red;
+
 }
 
 </style>
