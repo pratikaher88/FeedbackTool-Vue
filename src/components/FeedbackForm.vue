@@ -10,15 +10,25 @@
         <div class="column">
             <form @submit.prevent="submitFeedbackForm()" >
                 <div class="field" >
-                    <label class="label" > <strong> Comments: </strong> <span :class="{ '--exceeded': isDisabled }"> ({{ commentCharacterCount }}/500) </span></label>
+                    <label class="label"> 
+                      <strong> Comments: </strong> 
+                      <span> 
+                        ({{ commentCharacterCount }}/{{ max_len }}) 
+                        <span v-if="isDisabled" class="max_len_tag">
+                          - Maximum length reached !
+                        </span>
+                      </span>
+
+                    </label>
+
                     <div class="control">
-                        <textarea id="textAreaBox" rows="6" cols="60" v-model="feedbackTextArea"/>
+                        <textarea id="textAreaBox" rows="6" cols="60" v-model="feedbackTextArea" :maxlength="max_len"/>
                         <Speech2Text @speechend="speechEnd" />
                         <!-- <Speech2Text @sentTexts="sentTexts" @speechend="speechEnd" /> -->
                               <!-- {{sentences}} -->
                     </div>
                     <input type="file" @change="onImageSelected">
-                    <button class="submitbutton" @submit.prevent="submitFeedbackForm" :disabled='isDisabled'>SUBMIT</button>
+                    <button class="submitbutton" @submit.prevent="submitFeedbackForm" >SUBMIT</button>
                 </div>
             </form>
         </div>
@@ -62,7 +72,8 @@ export default {
       text: '',
       newArea: '',
       sentences: null,
-      responseData: []
+      responseData: [],
+      max_len: '500'
       
     }
   },
@@ -70,17 +81,11 @@ export default {
   computed: {
 
     commentCharacterCount() {
-
-      if (this.isDisabled){
-        return 500 - this.feedbackTextArea.length
-      }
-      else{
-        return this.feedbackTextArea.length;
-      }
+      return this.feedbackTextArea.length;
 
     },
     isDisabled(){
-      return this.feedbackTextArea.length>500;
+      return this.feedbackTextArea.length==this.max_len;
     }
 
   },
@@ -171,10 +176,6 @@ export default {
   font-size: 12px;
 }
 
-.submitbutton:disabled {
-  background: #dddddd;
-}
-
 .upload {
   background-color: darkgreen; /* Green */
   border: none;
@@ -187,9 +188,9 @@ export default {
   font-size: 12px;
 }
 
-.--exceeded {
+.max_len_tag{
   color: red;
-
 }
+
 
 </style>
